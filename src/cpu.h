@@ -30,8 +30,8 @@ public:
 
 private:
     std::array<uint32_t, 32> registers;
-    uint32_t pc;
     Memory& memory;
+    uint32_t pc;
     bool halted;
     uint64_t inst_count;
     
