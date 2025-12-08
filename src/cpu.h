@@ -1,0 +1,52 @@
+#ifndef CPU_H
+#define CPU_H
+
+#include <cstdint>
+#include <array>
+#include "memory.h"
+#include "instruction.h"
+
+class CPU {
+public:
+    CPU(Memory& mem);
+    
+    void reset();
+    void step();
+    void run();
+    
+    // Register access
+    uint32_t getRegister(int reg) const;
+    void setRegister(int reg, uint32_t value);
+    uint32_t getPC() const { return pc; }
+    void setPC(uint32_t value) { pc = value; }
+    
+    // Status
+    bool isHalted() const { return halted; }
+    void halt() { halted = true; }
+    
+    // Debugging
+    void dumpRegisters() const;
+    uint64_t getInstructionCount() const { return inst_count; }
+
+private:
+    std::array<uint32_t, 32> registers;
+    uint32_t pc;
+    Memory& memory;
+    bool halted;
+    uint64_t inst_count;
+    
+    void executeInstruction(const Instruction& inst);
+    
+    // Instruction execution helpers
+    void execALU(const Instruction& inst);
+    void execLoad(const Instruction& inst);
+    void execStore(const Instruction& inst);
+    void execBranch(const Instruction& inst);
+    void execJAL(const Instruction& inst);
+    void execJALR(const Instruction& inst);
+    void execLUI(const Instruction& inst);
+    void execAUIPC(const Instruction& inst);
+    void execSystem(const Instruction& inst);
+};
+
+#endif // CPU_H
