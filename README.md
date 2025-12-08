@@ -1,5 +1,4 @@
-# RISC-V Simulator
-
+# RISCV-SIM-cpp
 A C++ implementation of a RISC-V (RV32I) instruction set simulator. This simulator can execute RISC-V machine code and provides debugging capabilities.
 
 ## Features
