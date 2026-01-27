@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-CPU::CPU(Memory& mem) : memory(mem), pc(0), halted(false), inst_count(0) {
+CPU::CPU(Memory& mem) : memory(mem), pc(0), halted(false), inst_count(0), cycle_count(0) {
     registers.fill(0);
 }
 
@@ -12,6 +12,7 @@ void CPU::reset() {
     pc = 0;
     halted = false;
     inst_count = 0;
+    cycle_count = 0; // Ensure cycles start at 0
 }
 
 uint32_t CPU::getRegister(int reg) const {
@@ -120,6 +121,8 @@ void CPU::execALU(const Instruction& inst) {
     
     setRegister(inst.rd, result);
     pc += 4;
+    stats.alu_ops++;
+    cycle_count += 1;
 }
 
 void CPU::execLoad(const Instruction& inst) {
@@ -146,6 +149,8 @@ void CPU::execLoad(const Instruction& inst) {
     
     setRegister(inst.rd, value);
     pc += 4;
+    stats.loads++;
+    cycle_count += 2; //one for address calculation + one for memory access
 }
 
 void CPU::execStore(const Instruction& inst) {
@@ -165,6 +170,8 @@ void CPU::execStore(const Instruction& inst) {
     }
     
     pc += 4;
+    stats.stores++;
+    cycle_count += 2;
 }
 
 void CPU::execBranch(const Instruction& inst) {
@@ -194,31 +201,40 @@ void CPU::execBranch(const Instruction& inst) {
     }
     
     if (take_branch) {
-        pc += inst.imm;
+    pc += inst.imm;
+    cycle_count += 3; // Penalty for changing control flow
     } else {
         pc += 4;
+        cycle_count += 1; // Direct path
     }
+    stats.branches++;
 }
 
 void CPU::execJAL(const Instruction& inst) {
     setRegister(inst.rd, pc + 4);
     pc += inst.imm;
+    stats.jumps++;
+    cycle_count += 3;
 }
 
 void CPU::execJALR(const Instruction& inst) {
     uint32_t target = (getRegister(inst.rs1) + inst.imm) & ~1;
     setRegister(inst.rd, pc + 4);
     pc = target;
+    stats.jumps++;
+    cycle_count += 3;
 }
 
 void CPU::execLUI(const Instruction& inst) {
     setRegister(inst.rd, inst.imm);
     pc += 4;
+    cycle_count += 1;
 }
 
 void CPU::execAUIPC(const Instruction& inst) {
     setRegister(inst.rd, pc + inst.imm);
     pc += 4;
+    cycle_count += 1;
 }
 
 void CPU::execSystem(const Instruction& inst) {
@@ -240,3 +256,24 @@ void CPU::dumpRegisters() const {
     std::cout << "PC  = 0x" << std::hex << std::setw(8) << std::setfill('0') << pc << std::endl;
     std::cout << std::dec << "Instructions executed: " << inst_count << std::endl;
 }
+
+void CPU::printPerformanceStats() const {
+    std::cout << "\n========== Performance Summary ==========" << std::endl;
+    std::cout << "Total Instructions: " << inst_count << std::endl;
+    
+    auto printStat = [&](std::string name, uint64_t count) {
+        double percentage = (inst_count > 0) ? (static_cast<double>(count) / inst_count) * 100.0 : 0;
+        std::cout << std::left << std::setw(15) << name << ": " 
+                  << std::setw(10) << count << " (" << std::fixed << std::setprecision(2) 
+                  << percentage << "%)" << std::endl;
+    };
+
+    printStat("ALU Ops", stats.alu_ops);
+    printStat("Loads", stats.loads);
+    printStat("Stores", stats.stores);
+    printStat("Branches", stats.branches);
+    printStat("Jumps", stats.jumps);
+    printStat("System", stats.system);
+    std::cout << "==========================================" << std::endl;
+}
+
