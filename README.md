@@ -1,50 +1,59 @@
 # RISCV-SIM-cpp
-A C++ implementation of a RISC-V (RV32I) instruction set simulator. This simulator can execute RISC-V machine code and provides debugging capabilities.
+
+A C++ implementation of a RISC-V (RV32I) instruction set simulator. This simulator can execute RISC-V machine code and provides debugging capabilities, performance statistics, and instruction flow visualization.
 
 ## Features
 
-- **RV32I Base Integer Instruction Set** support
-- Memory management with configurable size
-- Instruction decoder for all RV32I formats (R, I, S, B, U, J)
-- Debug mode with register dumps
-- Step-through execution mode
-- Binary and hex file loading
-- Clean, modular architecture
+* RV32I Base Integer Instruction Set support
+* Memory management with configurable size
+* Instruction decoder for all RV32I formats (R, I, S, B, U, J)
+* Debug mode with register dumps
+* Step-through execution mode
+* Binary and hex file loading
+* **Cycle-accurate performance simulation**
+* **Instruction type statistics and analysis**
+* **Pipeline visualization with dataflow diagrams**
+* Clean, modular architecture
+
+## Documentation
+
+* [Usage Guide](docs/Usage.md) - Command-line options and examples
+* [Performance Analysis](docs/Performance.md) - Cycle counting and instruction statistics
+* [Architecture Overview](docs/Architecture.md) - Simulator design and components
+* [Instruction Flow Visualization](Instruction_flow.md) - Pipeline diagrams and analysis
 
 ## Supported Instructions
 
 ### Arithmetic & Logic
-- `ADD`, `SUB`, `AND`, `OR`, `XOR`
-- `SLL`, `SRL`, `SRA` (shifts)
-- `SLT`, `SLTU` (set less than)
-- Immediate variants: `ADDI`, `ANDI`, `ORI`, `XORI`, `SLLI`, `SRLI`, `SRAI`, `SLTI`, `SLTIU`
+* `ADD`, `SUB`, `AND`, `OR`, `XOR`
+* `SLL`, `SRL`, `SRA` (shifts)
+* `SLT`, `SLTU` (set less than)
+* Immediate variants: `ADDI`, `ANDI`, `ORI`, `XORI`, `SLLI`, `SRLI`, `SRAI`, `SLTI`, `SLTIU`
 
 ### Memory Access
-- `LB`, `LH`, `LW` (load byte/half/word)
-- `LBU`, `LHU` (load unsigned)
-- `SB`, `SH`, `SW` (store byte/half/word)
+* `LB`, `LH`, `LW` (load byte/half/word)
+* `LBU`, `LHU` (load unsigned)
+* `SB`, `SH`, `SW` (store byte/half/word)
 
 ### Control Flow
-- `BEQ`, `BNE`, `BLT`, `BGE`, `BLTU`, `BGEU` (branches)
-- `JAL`, `JALR` (jumps)
+* `BEQ`, `BNE`, `BLT`, `BGE`, `BLTU`, `BGEU` (branches)
+* `JAL`, `JALR` (jumps)
 
 ### Upper Immediate
-- `LUI` (load upper immediate)
-- `AUIPC` (add upper immediate to PC)
+* `LUI` (load upper immediate)
+* `AUIPC` (add upper immediate to PC)
 
 ### System
-- `ECALL` (environment call - used to halt simulation)
+* `ECALL` (environment call - used to halt simulation)
 
 ## Building
 
 ### Using Make
-
 ```bash
 make
 ```
 
 ### Using CMake
-
 ```bash
 mkdir build
 cd build
@@ -53,20 +62,17 @@ make
 ```
 
 ## Usage
-
 ```bash
 ./riscv-sim [options] <binary_file>
 ```
 
 ### Options
-
-- `-h, --help`: Show help message
-- `-d, --debug`: Enable debug mode (dump registers after execution)
-- `-s, --step`: Step through instructions interactively
-- `-m, --memory`: Dump memory contents after execution
+* `-h, --help`: Show help message
+* `-d, --debug`: Enable debug mode (dump registers after execution)
+* `-s, --step`: Step through instructions interactively
+* `-m, --memory`: Dump memory contents after execution
 
 ### Example
-
 ```bash
 # Run with debug output
 ./riscv-sim -d tests/test_program.bin
@@ -76,29 +82,36 @@ make
 
 # Run with all debugging features
 ./riscv-sim -d -m tests/test_program.bin
+
+# Generate instruction flow visualization
+./riscv-sim tests/test_program.bin | python3 scripts/generate_flow.py
 ```
+
+## Performance Analysis
+
+The simulator tracks cycle-accurate performance metrics:
+* Total cycle count
+* Instruction breakdown by type
+* IPC (Instructions Per Cycle)
+
+See [Performance Documentation](docs/performance.md) for details.
 
 ## Creating Test Programs
 
 ### Using RISC-V Toolchain
-
 1. Write your assembly code (`.s` file)
 2. Assemble and link:
-
 ```bash
 riscv64-unknown-elf-as -march=rv32i -mabi=ilp32 program.s -o program.o
 riscv64-unknown-elf-ld -m elf32lriscv program.o -o program.elf
 riscv64-unknown-elf-objcopy -O binary program.elf program.bin
 ```
-
 3. Run in simulator:
-
 ```bash
 ./riscv-sim program.bin
 ```
 
 ### Assembly Example
-
 ```asm
 .text
 .globl _start
@@ -121,7 +134,6 @@ loop:
 ## Architecture
 
 ### File Structure
-
 ```
 riscv-simulator/
 ├── src/
@@ -133,32 +145,38 @@ riscv-simulator/
 │   └── loader.cpp/h      # Binary/hex file loader
 ├── tests/
 │   └── test_program.s    # Example assembly program
+├── docs/
+│   ├── usage.md          # Usage guide
+│   ├── performance.md    # Performance documentation
+│   ├── architecture.md   # Architecture overview
+│   └── flow_visualization.md  # Visualization guide
+├── scripts/
+│   └── generate_flow.py  # Flow diagram generator
 ├── CMakeLists.txt
 ├── Makefile
 └── README.md
 ```
 
 ### Components
+* **CPU**: Manages registers, program counter, and instruction execution
+* **Memory**: Provides byte-addressable memory with little-endian encoding
+* **Decoder**: Decodes 32-bit instruction words into structured format
+* **Instruction**: Represents decoded instructions with all fields
+* **Loader**: Loads binary and hex files into memory
 
-- **CPU**: Manages registers, program counter, and instruction execution
-- **Memory**: Provides byte-addressable memory with little-endian encoding
-- **Decoder**: Decodes 32-bit instruction words into structured format
-- **Instruction**: Represents decoded instructions with all fields
-- **Loader**: Loads binary and hex files into memory
+See [Architecture Documentation](docs/architecture.md) for detailed component descriptions.
 
-## Memory Layout
+### Memory Layout
+* Default memory size: 1MB
+* Little-endian byte ordering
+* Program loaded at address 0x00000000
+* PC starts at 0x00000000
 
-- Default memory size: 1MB
-- Little-endian byte ordering
-- Program loaded at address 0x00000000
-- PC starts at 0x00000000
-
-## Registers
-
-- 32 general-purpose registers (x0-x31)
-- x0 is hardwired to zero
-- x10 (a0) typically holds return values
-- Standard RISC-V calling convention supported
+### Registers
+* 32 general-purpose registers (x0-x31)
+* x0 is hardwired to zero
+* x10 (a0) typically holds return values
+* Standard RISC-V calling convention supported
 
 ## Exit and Return Values
 
@@ -166,29 +184,28 @@ Programs should use `ECALL` to halt execution. The simulator reads the return va
 
 ## Limitations
 
-- Only RV32I base instruction set (no M, A, F, D extensions)
-- No privilege modes (runs in M-mode equivalent)
-- No MMU or virtual memory
-- No interrupts or exceptions (except halt on ECALL)
-- No system calls beyond halt
+* Only RV32I base instruction set (no M, A, F, D extensions)
+* No privilege modes (runs in M-mode equivalent)
+* No MMU or virtual memory
+* No interrupts or exceptions (except halt on ECALL)
+* No system calls beyond halt
 
 ## Future Enhancements
 
 Potential additions:
-- M extension (multiplication/division)
-- CSR (Control and Status Register) support
-- Compressed instructions (C extension)
-- ELF file loading
-- GDB remote debugging support
-- Performance counters
-- Memory-mapped I/O
+* M extension (multiplication/division)
+* CSR (Control and Status Register) support
+* Compressed instructions (C extension)
+* ELF file loading
+* GDB remote debugging support
+* Memory-mapped I/O
 
 ## License
 
-This project is provided as-is for educational purposes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Resources
 
-- [RISC-V Specification](https://riscv.org/technical/specifications/)
-- [RISC-V Green Card](https://www.cl.cam.ac.uk/teaching/1617/ECAD+Arch/files/docs/RISCVGreenCardv8-20151013.pdf)
-- [RISC-V Assembly Programmer's Manual](https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md)
+* [RISC-V Specification](https://riscv.org/technical/specifications/)
+* [RISC-V Green Card](https://inst.eecs.berkeley.edu/~cs61c/fa17/img/riscvcard.pdf)
+* [RISC-V Assembly Programmer's Manual](https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md)
