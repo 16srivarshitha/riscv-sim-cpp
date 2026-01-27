@@ -27,8 +27,17 @@ public:
     // Debugging
     void dumpRegisters() const;
     uint64_t getInstructionCount() const { return inst_count; }
+    void printPerformanceStats() const;
 
 private:
+    struct InstStats {
+    uint64_t alu_ops = 0;
+    uint64_t loads = 0;
+    uint64_t stores = 0;
+    uint64_t branches = 0;
+    uint64_t jumps = 0;
+    uint64_t system = 0;
+    } stats;
     std::array<uint32_t, 32> registers;
     Memory& memory;
     uint32_t pc;

@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
         std::cout << "Total instructions executed: " << std::dec 
                   << cpu.getInstructionCount() << std::endl;
         
+        cpu.printPerformanceStats();
+        
         // Dump registers if debug mode
         if (debug) {
             std::cout << "\n";
