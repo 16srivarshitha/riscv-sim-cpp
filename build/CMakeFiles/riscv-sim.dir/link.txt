@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -Wextra -Wl,--dependency-file=CMakeFiles/riscv-sim.dir/link.d "CMakeFiles/riscv-sim.dir/src/main.cpp.o" "CMakeFiles/riscv-sim.dir/src/cpu.cpp.o" "CMakeFiles/riscv-sim.dir/src/memory.cpp.o" "CMakeFiles/riscv-sim.dir/src/instruction.cpp.o" "CMakeFiles/riscv-sim.dir/src/decoder.cpp.o" "CMakeFiles/riscv-sim.dir/src/loader.cpp.o" -o riscv-sim
