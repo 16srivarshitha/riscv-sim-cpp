@@ -62,6 +62,9 @@ private:
     void execLUI(const Instruction& inst);
     void execAUIPC(const Instruction& inst);
     void execSystem(const Instruction& inst);
+
+    // Disassembly helper
+    std::string getDisassembly(const Instruction& inst) const;
 };
 
 #endif // CPU_H

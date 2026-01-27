@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/srivarshitha-m/Projects/riscv-sim-cpp/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

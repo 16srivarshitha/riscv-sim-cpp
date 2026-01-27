@@ -32,6 +32,12 @@ void CPU::step() {
     uint32_t inst_word = memory.readWord(pc);
     Instruction inst = Decoder::decode(inst_word);
     
+    // Output flow data for Python visualization
+    std::cout << "[FLOW] Cycle: " << (cycle_count + 1) 
+              << " | PC: 0x" << std::hex << std::setw(8) << std::setfill('0') << pc 
+              << " | 0x" << std::hex << std::setw(8) << std::setfill('0') << inst_word 
+              << " | " << getDisassembly(inst) << std::dec << std::endl;
+    
     executeInstruction(inst);
     inst_count++;
 }
@@ -277,3 +283,95 @@ void CPU::printPerformanceStats() const {
     std::cout << "==========================================" << std::endl;
 }
 
+std::string CPU::getDisassembly(const Instruction& inst) const {
+    std::string result;
+    
+    switch (inst.opcode) {
+        case Opcode::LUI:
+            result = "LUI x" + std::to_string(inst.rd) + ", 0x" + 
+                     std::to_string(inst.imm >> 12);
+            break;
+        case Opcode::AUIPC:
+            result = "AUIPC x" + std::to_string(inst.rd) + ", 0x" + 
+                     std::to_string(inst.imm >> 12);
+            break;
+        case Opcode::JAL:
+            result = "JAL x" + std::to_string(inst.rd) + ", " + 
+                     std::to_string(static_cast<int32_t>(inst.imm));
+            break;
+        case Opcode::JALR:
+            result = "JALR x" + std::to_string(inst.rd) + ", x" + 
+                     std::to_string(inst.rs1) + ", " + std::to_string(static_cast<int32_t>(inst.imm));
+            break;
+        case Opcode::BRANCH:
+            switch (inst.funct3) {
+                case 0x0: result = "BEQ"; break;
+                case 0x1: result = "BNE"; break;
+                case 0x4: result = "BLT"; break;
+                case 0x5: result = "BGE"; break;
+                case 0x6: result = "BLTU"; break;
+                case 0x7: result = "BGEU"; break;
+            }
+            result += " x" + std::to_string(inst.rs1) + ", x" + 
+                      std::to_string(inst.rs2) + ", " + std::to_string(static_cast<int32_t>(inst.imm));
+            break;
+        case Opcode::LOAD:
+            switch (inst.funct3) {
+                case 0x0: result = "LB"; break;
+                case 0x1: result = "LH"; break;
+                case 0x2: result = "LW"; break;
+                case 0x4: result = "LBU"; break;
+                case 0x5: result = "LHU"; break;
+            }
+            result += " x" + std::to_string(inst.rd) + ", " + 
+                      std::to_string(static_cast<int32_t>(inst.imm)) + "(x" + 
+                      std::to_string(inst.rs1) + ")";
+            break;
+        case Opcode::STORE:
+            switch (inst.funct3) {
+                case 0x0: result = "SB"; break;
+                case 0x1: result = "SH"; break;
+                case 0x2: result = "SW"; break;
+            }
+            result += " x" + std::to_string(inst.rs2) + ", " + 
+                      std::to_string(static_cast<int32_t>(inst.imm)) + "(x" + 
+                      std::to_string(inst.rs1) + ")";
+            break;
+        case Opcode::OP_IMM:
+            switch (inst.funct3) {
+                case 0x0: result = "ADDI"; break;
+                case 0x1: result = "SLLI"; break;
+                case 0x2: result = "SLTI"; break;
+                case 0x3: result = "SLTIU"; break;
+                case 0x4: result = "XORI"; break;
+                case 0x5: result = (inst.funct7 == 0x20) ? "SRAI" : "SRLI"; break;
+                case 0x6: result = "ORI"; break;
+                case 0x7: result = "ANDI"; break;
+            }
+            result += " x" + std::to_string(inst.rd) + ", x" + 
+                      std::to_string(inst.rs1) + ", " + std::to_string(static_cast<int32_t>(inst.imm));
+            break;
+        case Opcode::OP:
+            switch (inst.funct3) {
+                case 0x0: result = (inst.funct7 == 0x20) ? "SUB" : "ADD"; break;
+                case 0x1: result = "SLL"; break;
+                case 0x2: result = "SLT"; break;
+                case 0x3: result = "SLTU"; break;
+                case 0x4: result = "XOR"; break;
+                case 0x5: result = (inst.funct7 == 0x20) ? "SRA" : "SRL"; break;
+                case 0x6: result = "OR"; break;
+                case 0x7: result = "AND"; break;
+            }
+            result += " x" + std::to_string(inst.rd) + ", x" + 
+                      std::to_string(inst.rs1) + ", x" + std::to_string(inst.rs2);
+            break;
+        case Opcode::SYSTEM:
+            result = "ECALL";
+            break;
+        default:
+            result = "UNKNOWN";
+            break;
+    }
+    
+    return result;
+}
