@@ -28,35 +28,32 @@ cmake --build buildRun with flow visualization
 
 The test program computes the Fibonacci sequence and demonstrates various instruction types.
 
-### Cycle 1: Initialize First Value
+### Cycle 1: Initialize First Value - **Instruction**: `ADDI x10, x0, 0` (LI x10, 0)
 ![Cycle 1](frames/frame_1.png)
-**Instruction**: `ADDI x10, x0, 0` (LI x10, 0)
+
 - Loads immediate value 0 into register x10
 - Uses I-type format with opcode OP_IMM
 - Completes in 1 cycle (ALU operation)
 
-### Cycle 2: Initialize Second Value
+### Cycle 2: Initialize Second Value - **Instruction**: `ADDI x11, x0, 1` (LI x11, 1)
 ![Cycle 2](frames/frame_2.png)
-**Instruction**: `ADDI x11, x0, 1` (LI x11, 1)
 - Loads immediate value 1 into register x11
 - 1 cycle ALU operation
 
-### Cycle 3: Set Loop Counter
+### Cycle 3: Set Loop Counter - **Instruction**: `ADDI x12, x0, 10` (LI x12, 10)
 ![Cycle 3](frames/frame_3.png)
-**Instruction**: `ADDI x12, x0, 10` (LI x12, 10)
 - Sets loop limit to 10
 - 1 cycle ALU operation
 
-### Cycle 7: Store to Memory
-![Cycle 7](frames/frame_8.png)
-**Instruction**: `SW x10, 0(x14)`
+### Cycle 8: Store to Memory - **Instruction**: `SW x10, 0(x14)`
+![Cycle 8](frames/frame_8.png)
+
 - Stores value from x10 to memory address in x14
 - Uses S-type format
 - Completes in 2 cycles (address calculation + memory write)
 
-### Cycle 12: Branch Decision
+### Cycle 12: Branch Decision - **Instruction**: `BGE x13, x12, done`
 ![Cycle 12](frames/frame_12.png)
-**Instruction**: `BGE x13, x12, done`
 - Compares x13 with x12 to check loop condition
 - Branch taken: 3 cycles (pipeline flush penalty)
 - Branch not taken: 1 cycle (fall through)
@@ -68,23 +65,20 @@ The test program computes the Fibonacci sequence and demonstrates various instru
 - R-type instruction format
 - 1 cycle ALU operation
 
-### Cycle 20: Load from Memory
+### Cycle 20: Load from Memory - **Instruction**: `LW x21, 0(x20)`
 ![Cycle 20](frames/frame_20.png)
-**Instruction**: `LW x21, 0(x20)`
 - Loads word from memory into register x21
 - I-type load instruction
 - 2 cycles (address calculation + memory read)
 
-### Cycle 35: Unconditional Jump
+### Cycle 35: Unconditional Jump - **Instruction**: `J fib_loop`
 ![Cycle 35](frames/frame_35.png)
-**Instruction**: `J fib_loop`
 - Jumps back to loop start
 - J-type instruction format
 - 3 cycles (control flow change)
 
-### Final Cycle: System Call
+### Final Cycle: System Call - **Instruction**: `ECALL`
 ![Cycle 40](frames/frame_40.png)
-**Instruction**: `ECALL`
 - Halts simulation
 - System instruction
 - Program exits with result in x23
