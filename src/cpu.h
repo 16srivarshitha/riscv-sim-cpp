@@ -28,6 +28,11 @@ public:
     void dumpRegisters() const;
     uint64_t getInstructionCount() const { return inst_count; }
     void printPerformanceStats() const;
+    //cycle count
+    uint64_t getCycleCount() const { return cycle_count; }
+
+    
+    
 
 private:
     struct InstStats {
@@ -43,6 +48,7 @@ private:
     uint32_t pc;
     bool halted;
     uint64_t inst_count;
+    uint64_t cycle_count = 0;
     
     void executeInstruction(const Instruction& inst);
     

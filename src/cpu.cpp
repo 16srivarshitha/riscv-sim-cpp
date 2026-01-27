@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-CPU::CPU(Memory& mem) : memory(mem), pc(0), halted(false), inst_count(0) {
+CPU::CPU(Memory& mem) : memory(mem), pc(0), halted(false), inst_count(0), cycle_count(0) {
     registers.fill(0);
 }
 
@@ -12,6 +12,7 @@ void CPU::reset() {
     pc = 0;
     halted = false;
     inst_count = 0;
+    cycle_count = 0; // Ensure cycles start at 0
 }
 
 uint32_t CPU::getRegister(int reg) const {
@@ -121,6 +122,7 @@ void CPU::execALU(const Instruction& inst) {
     setRegister(inst.rd, result);
     pc += 4;
     stats.alu_ops++;
+    cycle_count += 1;
 }
 
 void CPU::execLoad(const Instruction& inst) {
@@ -148,6 +150,7 @@ void CPU::execLoad(const Instruction& inst) {
     setRegister(inst.rd, value);
     pc += 4;
     stats.loads++;
+    cycle_count += 2; //one for address calculation + one for memory access
 }
 
 void CPU::execStore(const Instruction& inst) {
@@ -168,6 +171,7 @@ void CPU::execStore(const Instruction& inst) {
     
     pc += 4;
     stats.stores++;
+    cycle_count += 2;
 }
 
 void CPU::execBranch(const Instruction& inst) {
@@ -197,9 +201,11 @@ void CPU::execBranch(const Instruction& inst) {
     }
     
     if (take_branch) {
-        pc += inst.imm;
+    pc += inst.imm;
+    cycle_count += 3; // Penalty for changing control flow
     } else {
         pc += 4;
+        cycle_count += 1; // Direct path
     }
     stats.branches++;
 }
@@ -208,6 +214,7 @@ void CPU::execJAL(const Instruction& inst) {
     setRegister(inst.rd, pc + 4);
     pc += inst.imm;
     stats.jumps++;
+    cycle_count += 3;
 }
 
 void CPU::execJALR(const Instruction& inst) {
@@ -215,16 +222,19 @@ void CPU::execJALR(const Instruction& inst) {
     setRegister(inst.rd, pc + 4);
     pc = target;
     stats.jumps++;
+    cycle_count += 3;
 }
 
 void CPU::execLUI(const Instruction& inst) {
     setRegister(inst.rd, inst.imm);
     pc += 4;
+    cycle_count += 1;
 }
 
 void CPU::execAUIPC(const Instruction& inst) {
     setRegister(inst.rd, pc + inst.imm);
     pc += 4;
+    cycle_count += 1;
 }
 
 void CPU::execSystem(const Instruction& inst) {
@@ -266,3 +276,4 @@ void CPU::printPerformanceStats() const {
     printStat("System", stats.system);
     std::cout << "==========================================" << std::endl;
 }
+
