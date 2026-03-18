@@ -18,7 +18,7 @@ A C++ implementation of a RISC-V (RV32I) instruction set simulator. This simulat
 ## Documentation
 
 * [Usage Guide](docs/Usage.md) - Command-line options and examples
-* [Performance Analysis](docs/Performance.md) - Cycle counting and instruction statistics
+* [Performance Analysis](docs/Performance_model.md) - Cycle counting and instruction statistics
 * [Architecture Overview](docs/Architecture.md) - Simulator design and components
 * [Instruction Flow Visualization](Instruction_flow.md) - Pipeline diagrams and analysis
 
@@ -94,7 +94,7 @@ The simulator tracks cycle-accurate performance metrics:
 * Instruction breakdown by type
 * IPC (Instructions Per Cycle)
 
-See [Performance Documentation](docs/performance.md) for details.
+See [Performance Documentation](ddocs/Performance_model.md) for details.
 
 ## Creating Test Programs
 
